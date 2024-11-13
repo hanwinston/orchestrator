@@ -10,8 +10,8 @@ import os
 DATABASE_URL = "sqlite:///jobs.db"  # SQLite database file
 ECS_CLUSTER = "my-cluster"
 ECS_TASK_DEFINITION = "my-task"
-FARGATE_SUBNET = "subnet-scan"
-FARGATE_SECURITY_GROUP = "my-security-group"
+FARGATE_SUBNET = "subnet-0b74b21005d7991be"
+FARGATE_SECURITY_GROUP = "sg-02df5dfd4847909e7"
 MAX_WORKERS = 2  # Maximum number of Fargate workers to run in parallel
 CHECK_INTERVAL = 30  # Polling interval in seconds
 
@@ -20,7 +20,7 @@ ecs_client = boto3.client('ecs', region_name='us-west-2')
 
 # Database setup
 engine = create_engine(DATABASE_URL)
-metadata = MetaData(bind=engine)
+metadata = MetaData()
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -40,7 +40,7 @@ metadata.create_all(engine)
 
 def get_available_jobs(session):
     """Retrieve jobs that are queued and ready to be processed."""
-    query = select([jobs]).where(jobs.c.status == "QUEUED")
+    query = select(jobs).where(jobs.c.status == "QUEUED")
     return session.execute(query).fetchall()
 
 def start_fargate_task():
